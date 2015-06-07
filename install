@@ -1,0 +1,8 @@
+mkdir /tmp/haourt
+cd /tmp/haourt
+curl -L 'https://raw.githubusercontent.com/czipperz/haourt/master/haourt' > haourt
+sudo cp haourt /bin
+curl -L 'https://raw.githubusercontent.com/czipperz/haourt/master/mirrorlist' > mirrorlist
+mkdir -p $HOME/.config/haourt
+cp mirrorlist $HOME/.config/haourt/mirrorlist
+touch $HOME/.config/haourt/installed
