@@ -4,5 +4,5 @@ curl -L 'https://raw.githubusercontent.com/czipperz/haourt/master/haourt' > haou
 sudo cp haourt /bin
 curl -L 'https://raw.githubusercontent.com/czipperz/haourt/master/mirrorlist' > mirrorlist
 mkdir -p $HOME/.config/haourt
-cp mirrorlist $HOME/.config/haourt/mirrorlist
+cp mirrorlist $HOME/.config/haourt
 touch $HOME/.config/haourt/installed
