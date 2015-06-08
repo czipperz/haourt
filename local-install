@@ -1,0 +1,5 @@
+#!/bin/bash
+sudo cp haourt /bin
+mkdir -p $HOME/.config/haourt
+cp mirrorlist $HOME/.config/haourt/installed
+touch $HOME/.config/haourt/installed
