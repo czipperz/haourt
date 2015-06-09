@@ -1,0 +1,156 @@
+#!/bin/bash
+
+# Prints help
+function help() {
+	echo "haourt help is accessed with --help or -h or no parameters"
+	echo ""
+	echo "haourt is a package that allows for wrapping of PKGBUILDs into pacman for \$HOME installs"
+	echo ""
+	echo "Install a package using \`haourt -S <pkgname>\`"
+	echo "Updating the mirrorlist is used with \`haourt -Sy\`"
+	echo "Updating the packages is used with \`haourt -Su\`"
+	echo "Search with \`haourt -Ss\`"
+	echo "To submit a package, see 'https://github.com/czipperz/haourt/blob/master/submit.md'"
+}
+
+# Downloads all given packages
+# Parameters: $@ - Package names
+function downloadAll() {
+	while (( $# > 0 )); do
+		download $1
+		shift
+	done
+}
+
+# Downloads a given package
+# Parameters: $1 - Package name
+function download() {
+	while read line; do
+		name=$(echo $line | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
+		vers=$(echo $line | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$2/')
+		if [ "$1" == "$name" ]; then
+			forceDownload "$name" "$vers"
+			break
+		fi
+	done < "$HOME/.config/haourt/mirrorlist"
+	unset name vers
+}
+
+# Backend downloader
+function forceDownload() {
+	mkdir -p /tmp/haourt
+	cd /tmp/haourt
+	echo "===>>> Downloading $1 pkgver:$(echo $2 | perl -pe "s/(.*?)\-.*/\$1/"), pkgrel:$(echo $2 | perl -pe "s/.*?\-(.*)/\$1/")"
+	curl -L "https://github.com/czipperz/haourt/raw/master/packages/${1}-${2}.src.tar.gz" > "${1}-${2}.src.tar.gz"
+	tar xf "${1}-${2}.src.tar.gz"
+	cd "${1}"
+	cat PKGBUILD | perl -pe 's/^pkgname\=(.*)$/pkgname=$1-local-'"$(whoami)"'/' > PKGBUILD
+	makepkg -sci && (cd /tmp/haourt; rm -R $1)
+}
+
+# Installs all given packages
+# Parameters: $@ - Package names
+function syncAll() {
+	while (( $# > 0 )); do
+		sync $1
+		shift
+	done
+}
+
+# Installs a given package
+# Parameters: $1 - Package name
+function sync() {
+	while read line; do
+		name=$(echo $line | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
+		vers=$(echo $line | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$2/')
+		if [ "$1" == "$name" ]; then
+			forceInstall "$name" "$vers"
+			break
+		fi
+	done < "$HOME/.config/haourt/mirrorlist"
+	unset name vers
+}
+
+# Backend installer - uses `forceDownload`
+function forceInstall() {
+	forceDownload "$1" "$2"
+	if $(makepkg -sci); then
+		cd /tmp/haourt
+		rm -R $1
+	else
+		echo "===>>> "
+		echo "===>>> Error occurred... backup stored at /tmp/haourt/${1}-${2}.src.tar.gz"
+	fi
+}
+
+function syncMirrorList() {
+	echo "===>>> Downloading mirrorlist"
+	curl -L "https://github.com/czipperz/haourt/raw/master/mirrorlist" > "$HOME/.config/haourt/mirrorlistnew" 2>/dev/null
+	if diff "$HOME/.config/haourt/mirrorlistnew" "$HOME/.config/haourt/mirrorlist" >/dev/null; then
+		echo "===>>> No mirrorlist changes"
+		rm "$HOME/.config/haourt/mirrorlistnew"
+	else
+		echo "===>>> New mirrorlist version, you have been updated"
+		cp "$HOME/.config/haourt/mirrorlistnew" "$HOME/.config/haourt/mirrorlist"
+	fi
+}
+
+# Scans $HOME/.config/haourt/installed and compares the version numbers
+# Then runs	`install` on those programs that differ
+function update() {
+	while read inst; do
+		name=$(echo "$inst" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
+		vers=$(echo "$inst" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$2/')
+		echo "hi name: '$name'  vers: '$vers'"
+		while read line; do
+			echo "   name: '$name'  vers: '$vers'"
+			nameMIR=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
+			versMIR=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$2/')
+			if [ "$name" == "$nameMIR" ]; then
+				if [ ! "$vers" == "$versMIR" ]; then
+					echo $versMIR
+					forceInstall "$name" "$versMIR"
+				fi
+				break
+			fi
+		done < "$HOME/.config/haourt/mirrorlist"
+	done < "$HOME/.config/haourt/installed"
+	unset name vers nameMIR versMIR
+}
+
+if [ $# -eq 0 ]; then
+	echo "Needs at least one argument"
+	echo ""
+	help
+	exit 1
+fi
+
+case $1 in
+	-S*)
+		case $1 in
+			-Syu) syncMirrorList
+				update
+				;;
+			-Sy) syncMirrorList
+				;;
+			-Syy) echo 'NOTICE: this option is the same as `-Sy` as of June 8th, 2015'
+				syncMirrorList
+				;;
+			-Su) update
+				;;
+			-Sw) shift
+				downloadAll $@
+				exit 0
+				;;
+			*) echo "Unfound or unimplemented option '$1'. Sorry"
+		esac
+		shift
+		syncAll $@
+		;;
+	-h|--help) help
+		;;
+	*) echo "Unfound or unimplemented option '$1'. Sorry"
+		echo ""
+		help
+		;;
+esac
