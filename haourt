@@ -45,7 +45,6 @@ function forceDownload() {
 	tar xf "${1}-${2}.src.tar.gz"
 	cd "${1}"
 	cat PKGBUILD | perl -pe 's/^pkgname\=(.*)$/pkgname=$1-local-'"$(whoami)"'/' > PKGBUILD
-	makepkg -sci && (cd /tmp/haourt; rm -R $1)
 }
 
 # Installs all given packages
@@ -74,9 +73,11 @@ function sync() {
 # Backend installer - uses `forceDownload`
 function forceInstall() {
 	forceDownload "$1" "$2"
-	if $(makepkg -sci); then
+	makepkg -sci
+	if [[ $? ]]; then
 		cd /tmp/haourt
 		rm -R $1
+		echo "${1}-${2}.src.tar.gz" >> $HOME/.config/haourt/installed
 	else
 		echo "===>>> "
 		echo "===>>> Error occurred... backup stored at /tmp/haourt/${1}-${2}.src.tar.gz"
@@ -118,6 +119,14 @@ function update() {
 	unset name vers nameMIR versMIR
 }
 
+function query() {
+	if (( $# == 0 )); then
+		while read line; do
+			echo $line | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+		done < $HOME/.config/haourt/installed
+	fi
+}
+
 if [ $# -eq 0 ]; then
 	echo "Needs at least one argument"
 	echo ""
@@ -142,10 +151,14 @@ case $1 in
 				downloadAll $@
 				exit 0
 				;;
+			-S) ;;
 			*) echo "Unfound or unimplemented option '$1'. Sorry"
 		esac
 		shift
 		syncAll $@
+		;;
+	-Q) shift
+		query $@
 		;;
 	-h|--help) help
 		;;
