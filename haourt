@@ -124,6 +124,28 @@ function query() {
 		while read line; do
 			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
 		done < $HOME/.config/haourt/installed
+	else
+		while read line; do
+			nnnn=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
+			if [[ "$nnnn" == "$@" ]]; then
+				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+			fi
+		done < $HOME/.config/haourt/installed
+	fi
+}
+
+function querysearch() {
+	if (( $# == 0 )); then
+		while read line; do
+			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+		done < $HOME/.config/haourt/installed
+	else
+		while read line; do
+			nnnn=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
+			if [[ 1 -eq $(echo "$nnnn" | fgrep -c "$@") ]]; then
+				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+			fi
+		done < $HOME/.config/haourt/installed
 	fi
 }
 
@@ -178,6 +200,9 @@ case $1 in
 		;;
 	-Q) shift
 		query $@
+		;;
+	-Qs) shift
+		querysearch $@
 		;;
 	-h|--help) help
 		;;
