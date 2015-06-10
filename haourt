@@ -102,14 +102,11 @@ function update() {
 	while read inst; do
 		name=$(echo "$inst" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
 		vers=$(echo "$inst" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$2/')
-		echo "hi name: '$name'  vers: '$vers'"
 		while read line; do
-			echo "   name: '$name'  vers: '$vers'"
 			nameMIR=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
 			versMIR=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$2/')
 			if [ "$name" == "$nameMIR" ]; then
 				if [ ! "$vers" == "$versMIR" ]; then
-					echo $versMIR
 					forceInstall "$name" "$versMIR"
 				fi
 				break
