@@ -77,7 +77,10 @@ function forceInstall() {
 	if [[ $? ]]; then
 		cd /tmp/haourt
 		rm -R $1
-		echo "${1}-${2}.src.tar.gz" >> $HOME/.config/haourt/installed
+		nnnn=0
+		(cat $HOME/.config/haourt/installed | perl -pe "s/${1}\-\d+\.\d+\-\d+\.src\.tar\.gz/${1}-${2}.src.tar.$(nnnn=1; echo gz)/") > $HOME/.config/haourt/installed
+		(( $nnnn == 0 )) && echo "${1}-${2}.src.tar.gz" >> $HOME/.config/haourt/installed
+		unset nnnn
 	else
 		echo "===>>> "
 		echo "===>>> Error occurred... backup stored at /tmp/haourt/${1}-${2}.src.tar.gz"
@@ -128,6 +131,7 @@ function query() {
 				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
 			fi
 		done < $HOME/.config/haourt/installed
+		unset nnnn
 	fi
 }
 
@@ -143,6 +147,7 @@ function querysearch() {
 				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
 			fi
 		done < $HOME/.config/haourt/installed
+		unset nnnn
 	fi
 }
 
@@ -158,6 +163,7 @@ function search() {
 				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
 			fi
 		done < $HOME/.config/haourt/mirrorlist
+		unset nnnn
 	fi
 }
 
