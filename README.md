@@ -10,7 +10,9 @@ Arch Linux:
 
 	curl -L https://raw.githubusercontent.com/czipperz/haourt/master/install | bash
 
-Not for use on non arch systems...
+Not for use on non arch systems.
+
+**BUILDING OF PACKAGES MUST BE AS DONE AS THE USER YOU WANT TO INSTALL AS**
 
 ## Contributing
 
