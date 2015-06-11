@@ -1,16 +1,21 @@
 #!/bin/bash
 
+C='\033[0m'
+W='\033[0;37m'
+B='\033[1;10m'
+U='\033[4;10m'
+
 # Prints help
 function help() {
-	echo "haourt help is accessed with --help or -h or no parameters"
-	echo ""
-	echo "haourt is a package that allows for wrapping of PKGBUILDs into pacman for \$HOME installs"
-	echo ""
-	echo "Install a package using \`haourt -S <pkgname>\`"
-	echo "Updating the mirrorlist is used with \`haourt -Sy\`"
-	echo "Updating the packages is used with \`haourt -Su\`"
-	echo "Search with \`haourt -Ss\`"
-	echo "To submit a package, see 'https://github.com/czipperz/haourt/blob/master/submit.md'"
+	printf "${B}haourt ${C}${U}help${C} is accessed with ${U}--help${C} or ${U}-h${C} or no parameters\n"
+	echo
+	printf "${B}haourt${C} is a package that allows for wrapping of ${U}PKGBUILDs${C} into ${U}\`pacman\`${C} for ${U}\`\$HOME\`${C} installs"
+	echo
+	printf "Install a package using $U\`haourt -S <pkgname>\`$C\n"
+	printf "Updating the mirrorlist is used with $U\`haourt -Sy\`$C\n"
+	printf "Updating the packages is used with $U\`haourt -Su\`$C\n"
+	printf "Search with $U\`haourt -Ss\`$C\n"
+	printf "To submit a package, see $U'https://github.com/czipperz/haourt/blob/master/submit.md'$C\n"
 }
 
 # Downloads all given packages
@@ -22,7 +27,7 @@ function downloadAll() {
 	done
 }
 
-# Downloads a given package
+# Downloads a given package - uses `forceDownload`
 # Parameters: $1 - Package name
 function download() {
 	while read line; do
@@ -42,9 +47,6 @@ function forceDownload() {
 	cd /tmp/haourt
 	echo "===>>> Downloading $1 pkgver:$(echo "$2" | perl -pe "s/(.*?)\-.*/\$1/"), pkgrel:$(echo $2 "| perl" -pe "s/.*?\-(.*)/\$1/")"
 	curl -L "https://github.com/czipperz/haourt/raw/master/packages/${1}-${2}.src.tar.gz" > "${1}-${2}.src.tar.gz"
-	tar xf "${1}-${2}.src.tar.gz"
-	cd "${1}"
-	cat PKGBUILD | perl -pe 's/^pkgname\=(.*)$/pkgname=$1-local-'"$(whoami)"'/' > PKGBUILD
 }
 
 # Installs all given packages
@@ -73,8 +75,14 @@ function sync() {
 # Backend installer - uses `forceDownload`
 function forceInstall() {
 	forceDownload "$1" "$2"
-	makepkg -sci
+	tar xf "${1}-${2}.src.tar.gz"
+	cd "${1}"
+	cat PKGBUILD | perl -pe 's/^pkgname\=(.*)$/pkgname=$1-local-'"$(whoami)"'\n/'
+	_HOME="$HOME"
+	cd /tmp/haourt/$1
+	makepkg -sci --noconfirm
 	if [[ $? ]]; then
+		echo "===>>> No error detected, cleaning up"
 		cd /tmp/haourt
 		rm -R $1
 		nnnn=0
