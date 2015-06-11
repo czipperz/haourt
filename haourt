@@ -175,6 +175,13 @@ function search() {
 	fi
 }
 
+function remove() {
+	while (( $# != 0 )); do
+		sudo pacman -R $1-local-$(whoami)
+		shift
+	done
+}
+
 if [ $# -eq 0 ]; then
 	echo "Needs at least one argument"
 	echo ""
@@ -216,6 +223,9 @@ case $1 in
 		querysearch $@
 		;;
 	-h|--help) help
+		;;
+	-R) shift
+		remove $@
 		;;
 	*) echo "Unfound or unimplemented option '$1'. Sorry"
 		echo ""
