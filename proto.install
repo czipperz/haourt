@@ -1,0 +1,4 @@
+post_install() {
+	sudo chown -R $_whoami $_HOME/<directory-installed-to>
+	sudo chgrp -R $_whoami $_HOME/<directory-installed-to>
+}
