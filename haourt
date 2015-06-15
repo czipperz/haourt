@@ -45,8 +45,9 @@ function download() {
 function forceDownload() {
 	mkdir -p /tmp/haourt
 	cd /tmp/haourt
-	echo "===>>> Downloading $1 pkgver:$(echo "$2" | perl -pe "s/(.*?)\-.*/\$1/"), pkgrel:$(echo $2 "| perl" -pe "s/.*?\-(.*)/\$1/")"
+	printf "===>>> Downloading $B$U$1$C ver:$W$2$C\n"
 	curl -L "https://github.com/czipperz/haourt/raw/master/packages/${1}-${2}.src.tar.gz" > "${1}-${2}.src.tar.gz"
+	echo "===>>> It is stored in /tmp/haourt/${1}-${2}.src.tar.gz"
 }
 
 # Installs all given packages
@@ -78,8 +79,6 @@ function forceInstall() {
 	tar xf "${1}-${2}.src.tar.gz"
 	cd "${1}"
 	cat PKGBUILD | perl -pe 's/^pkgname\=(.*)$/pkgname=$1-local-'"$(whoami)"'\n/'
-	_HOME="$HOME"
-	_whoami="$(whoami)"
 	cd /tmp/haourt/$1
 	makepkg -sci --noconfirm
 	if [[ $? ]]; then
@@ -137,7 +136,7 @@ function query() {
 		while read line; do
 			nnnn=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
 			if [[ "$nnnn" == "$@" ]]; then
-				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
 			fi
 		done < $HOME/.config/haourt/installed
 		unset nnnn
@@ -147,13 +146,13 @@ function query() {
 function querysearch() {
 	if (( $# == 0 )); then
 		while read line; do
-			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
 		done < $HOME/.config/haourt/installed
 	else
 		while read line; do
 			nnnn=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
 			if [[ 1 -eq $(echo "$nnnn" | fgrep -c "$@") ]]; then
-				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
 			fi
 		done < $HOME/.config/haourt/installed
 		unset nnnn
@@ -163,13 +162,13 @@ function querysearch() {
 function search() {
 	if (( $# == 0 )); then
 		while read line; do
-			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
 		done < $HOME/.config/haourt/mirrorlist
 	else
 		while read line; do
 			nnnn=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
 			if [[ 1 -eq $(echo "$nnnn" | fgrep -c "$@") ]]; then
-				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
 			fi
 		done < $HOME/.config/haourt/mirrorlist
 		unset nnnn
