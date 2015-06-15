@@ -100,7 +100,7 @@ function forceInstall() {
 function syncMirrorList() {
 	echo "===>>> Downloading mirrorlist"
 	curl -L "https://github.com/czipperz/haourt/raw/master/mirrorlist" > "$HOME/.config/haourt/mirrorlistnew" 2>/dev/null
-	if diff "$HOME/.config/haourt/mirrorlistnew" "$HOME/.config/haourt/mirrorlist" >/dev/null; then
+	if diff "$HOME/.config/haourt/mirrorlistnew" "$HOME/.config/haourt/mirrorlist" >/dev/null 2>/dev/null; then
 		echo "===>>> No mirrorlist changes"
 		rm "$HOME/.config/haourt/mirrorlistnew"
 	else
