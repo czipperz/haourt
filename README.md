@@ -6,7 +6,7 @@ The goal of this project is to easily distribute PKGBUILDs for Arch Linux that i
 
 **haourt** is a package that allows for wrapping of *PKGBUILDs* into `pacman` for `$HOME` installs
 
-###Sync options:
+####Sync options:
 
 *  -S   => Install one or more package(s)\n
 *  -Ss  => Search with fgrep\n
@@ -16,14 +16,14 @@ The goal of this project is to easily distribute PKGBUILDs for Arch Linux that i
 *  -Sw  => Downloads, extracts and modifys the package so that you can just \`makepkg -sci\` it/them\
 *  -Sww => Downloads the package(s)\n
 
-###Query options
+####Query options
 
 *  -Q   => Will print the package and its version as it is locally
 *  -Qs  => Will print the package and its version that matches a search query
 
-###Remove packages using -R
+####Remove packages using -R
 
-###To submit a package, see *<https://github.com/czipperz/haourt/blob/master/submit.md>*
+####To submit a package, see *<https://github.com/czipperz/haourt/blob/master/submit.md>*
 
 ## Installation
 
