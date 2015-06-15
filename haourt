@@ -80,6 +80,8 @@ function forceInstall() {
 	cd "${1}"
 	cat PKGBUILD | perl -pe 's/^pkgname\=(.*)$/pkgname=$1-local-'"$(whoami)"'\n/'
 	cd /tmp/haourt/$1
+	export $_HOME="$HOME"
+	export $_whoami="$(whoami)"
 	makepkg -sci --noconfirm
 	if [[ $? ]]; then
 		echo "===>>> No error detected, cleaning up"
