@@ -8,13 +8,13 @@ The goal of this project is to easily distribute PKGBUILDs for Arch Linux that i
 
 **Sync options:**
 
-*  `-S`   => Install one or more package(s)\n
-*  `-Ss`  => Search with fgrep\n
-*  `-Sy`  => Update the mirrorlist\n
-*  `-Su`  => Update the packages (based on the local mirrorlist)\n
-*  `-Syu` => Update the mirrorlist and packages\n
-*  `-Sw`  => Downloads, extracts and modifys the package so that you can just \`makepkg -sci\` it/them\
-*  `-Sww` => Downloads the package(s)\n
+*  `-S`   => Install one or more package(s)
+*  `-Ss`  => Search with fgrep
+*  `-Sy`  => Update the mirrorlist
+*  `-Su`  => Update the packages (based on the local mirrorlist)
+*  `-Syu` => Update the mirrorlist and packages
+*  `-Sw`  => Downloads, extracts and modifys the package so that you can just `makepkg -sci` it/them
+*  `-Sww` => Downloads the package(s)
 
 **Query options**
 
