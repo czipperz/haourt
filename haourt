@@ -79,6 +79,7 @@ function forceInstall() {
 	cd "${1}"
 	cat PKGBUILD | perl -pe 's/^pkgname\=(.*)$/pkgname=$1-local-'"$(whoami)"'\n/'
 	_HOME="$HOME"
+	_whoami="$(whoami)"
 	cd /tmp/haourt/$1
 	makepkg -sci --noconfirm
 	if [[ $? ]]; then
@@ -130,7 +131,7 @@ function update() {
 function query() {
 	if (( $# == 0 )); then
 		while read line; do
-			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1 ver:$2/'
+			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
 		done < $HOME/.config/haourt/installed
 	else
 		while read line; do
