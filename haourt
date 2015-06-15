@@ -5,19 +5,6 @@ W='\033[0;37m'
 B='\033[1;10m'
 U='\033[4;10m'
 
-# Prints help
-function help() {
-	printf "${B}haourt ${C}${U}help${C} is accessed with ${U}--help${C} or ${U}-h${C} or no parameters\n"
-	echo
-	printf "${B}haourt${C} is a package that allows for wrapping of ${U}PKGBUILDs${C} into ${U}\`pacman\`${C} for ${U}\`\$HOME\`${C} installs"
-	echo
-	printf "Install a package using $U\`haourt -S <pkgname>\`$C\n"
-	printf "Updating the mirrorlist is used with $U\`haourt -Sy\`$C\n"
-	printf "Updating the packages is used with $U\`haourt -Su\`$C\n"
-	printf "Search with $U\`haourt -Ss\`$C\n"
-	printf "To submit a package, see $U'https://github.com/czipperz/haourt/blob/master/submit.md'$C\n"
-}
-
 # Downloads all given packages
 # Parameters: $@ - Package names
 function downloadAll() {
@@ -73,13 +60,10 @@ function sync() {
 	unset name vers
 }
 
-# Backend installer - uses `forceDownload`
+# Backend installer - uses `forceDownload` and `forceModify`
 function forceInstall() {
 	forceDownload "$1" "$2"
-	tar xf "${1}-${2}.src.tar.gz"
-	cd "${1}"
-	cat PKGBUILD | perl -pe 's/^pkgname\=(.*)$/pkgname=$1-local-'"$(whoami)"'\n/'
-	cd /tmp/haourt/$1
+	forceModify "$1" "$2"
 	export _HOME="$HOME"
 	export _whoami="$(whoami)"
 	makepkg -sci --noconfirm
@@ -95,6 +79,32 @@ function forceInstall() {
 		echo "===>>> "
 		echo "===>>> Error occurred... backup stored at /tmp/haourt/${1}-${2}.src.tar.gz"
 	fi
+}
+
+function modifyAll() {
+	while (( $# > 0 )); do
+		modify $1
+		shift
+	done
+}
+
+function modify() {
+	while read line; do
+		name=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
+		vers=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$2/')
+		if [ "$1" == "$name" ]; then
+			forceModify $name $vers
+			break
+		fi
+	done < "$HOME/.config/haourt/mirrorlist"
+	unset name vers
+}
+
+function forceModify() {
+	cd /tmp/haourt
+	tar xf "${1}-${2}.src.tar.gz"
+	cd "$1"
+	cat PKGBUILD | perl -pe 's/^pkgname\=(.*)$/pkgname=$1-local-'"$(whoami)"'\n/'
 }
 
 function syncMirrorList() {
@@ -184,6 +194,30 @@ function remove() {
 	done
 }
 
+# Prints help
+function help() {
+	printf "${B}haourt ${C}${U}help${C} is accessed with ${U}--help${C} or ${U}-h${C} or no parameters\n"
+	echo
+	printf "${B}haourt${C} is a package that allows for wrapping of ${U}PKGBUILDs${C} into ${U}\`pacman\`${C} for ${U}\`\$HOME\`${C} installs"
+	echo
+	printf "Sync options\n"
+	printf "  -S   => Install one or more package(s)\n"
+	printf "  -Ss  => Search with fgrep\n"
+	printf "  -Sy  => Update the mirrorlist\n"
+	printf "  -Su  => Update the packages (based on the local mirrorlist)\n"
+	printf "  -Syu => Update the mirrorlist and packages\n"
+	printf "  -Sw  => Downloads, extracts and modifys the package so that you can just \`makepkg -sci\` it/them\n"
+	printf "  -Sww => Downloads the package(s)\n"
+	echo
+	printf "Query options\n"
+	printf "  -Q   => Will print the package and its version as it is locally"
+	printf "  -Qs  => Will print the package and its version that matches a search query"
+	echo
+	printf "Remove packages using -R"
+	echo
+	printf "To submit a package, see $U'https://github.com/czipperz/haourt/blob/master/submit.md'$C\n"
+}
+
 if [ $# -eq 0 ]; then
 	echo "Needs at least one argument"
 	echo ""
@@ -194,9 +228,6 @@ fi
 case $1 in
 	-S*)
 		case $1 in
-			-Syu) syncMirrorList
-				update
-				;;
 			-Sy) syncMirrorList
 				;;
 			-Syy) echo 'NOTICE: this option is the same as `-Sy` as of June 8th, 2015'
@@ -204,7 +235,15 @@ case $1 in
 				;;
 			-Su) update
 				;;
+			-Syu) syncMirrorList
+				update
+				;;
 			-Sw) shift
+				downloadAll $@
+				modifyAll $@
+				exit 0
+				;;
+			-Sww) shift
 				downloadAll $@
 				exit 0
 				;;
@@ -212,8 +251,12 @@ case $1 in
 				search $@
 				exit 0
 				;;
-			-S) ;;
-			*) echo "Unfound or unimplemented option '$1'. Sorry"
+			-S) [ $# -gt 1 ] || {
+					echo "Needs at least one package to install"
+					exit 1
+				}
+				;;
+			*) echo "Unfound or unimplemented option '$1'. It will still sync $@."
 		esac
 		shift
 		syncAll $@
