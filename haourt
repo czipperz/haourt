@@ -251,10 +251,10 @@ case $1 in
 				search $@
 				exit 0
 				;;
-			-S) [ $# -gt 1 ] || {
+			-S) if [ ! $# -gt 1 ]; then
 					echo "Needs at least one package to install"
 					exit 1
-				}
+				fi
 				;;
 			*) echo "Unfound or unimplemented option '$1'. It will still sync $@."
 		esac
