@@ -2,9 +2,7 @@
 
 The goal of this project is to easily distribute PKGBUILDs for Arch Linux that install into $HOME.
 
-**Usage**
-
-**haourt** is a package that allows for wrapping of *PKGBUILDs* into `pacman` for `$HOME` installs
+##Usage
 
 **Sync options:**
 
