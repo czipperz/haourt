@@ -196,7 +196,7 @@ function remove() {
 
 # Prints help
 function help() {
-	printf "${B}haourt ${C}${U}help${C} is accessed with ${U}--help${C} or ${U}-h${C} or no parameters\n"
+	printf "${B}haourt${C} ${U}help${C} is accessed with ${U}--help${C} or ${U}-h${C} or no parameters\n"
 	echo
 	printf "${B}haourt${C} is a package that allows for wrapping of ${U}PKGBUILDs${C} into ${U}\`pacman\`${C} for ${U}\`\$HOME\`${C} installs"
 	echo
