@@ -155,7 +155,7 @@ function query() {
 	fi
 }
 
-function querysearch() {
+function querySearch() {
 	if (( $# == 0 )); then
 		while read line; do
 			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
@@ -164,6 +164,22 @@ function querysearch() {
 		while read line; do
 			nnnn=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
 			if [[ 1 -eq $(echo "$nnnn" | fgrep -c "$@") ]]; then
+				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
+			fi
+		done < $HOME/.config/haourt/installed
+		unset nnnn
+	fi
+}
+
+function querySearchRegex() {
+	if (( $# == 0 )); then
+		while read line; do
+			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
+		done < $HOME/.config/haourt/installed
+	else
+		while read line; do
+			nnnn=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
+			if [[ 1 -eq $(echo "$nnnn" | egrep -c "$@") ]]; then
 				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
 			fi
 		done < $HOME/.config/haourt/installed
@@ -187,6 +203,22 @@ function search() {
 	fi
 }
 
+function searchRegex() {
+	if (( $# == 0 )); then
+		while read line; do
+			echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
+		done < $HOME/.config/haourt/mirrorlist
+	else
+		while read line; do
+			nnnn=$(echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/$1/')
+			if [[ 1 -eq $(echo "$nnnn" | egrep -c "$@") ]]; then
+				echo "$line" | perl -pe 's/(.*?)\-(\d+\.\d+\-\d+)\.src\.tar\.gz/'"$B$U"'$1'"$C"' ver:'"$W"'$2/'
+			fi
+		done < $HOME/.config/haourt/mirrorlist
+		unset nnnn
+	fi
+}
+
 function remove() {
 	while (( $# != 0 )); do
 		sudo pacman -R $1-local-$(whoami)
@@ -203,6 +235,7 @@ function help() {
 	printf "Sync options\n"
 	printf "  -S   => Install one or more package(s)\n"
 	printf "  -Ss  => Search with fgrep\n"
+	printf "  -Ss  => Search with egrep\n"
 	printf "  -Sy  => Update the mirrorlist\n"
 	printf "  -Su  => Update the packages (based on the local mirrorlist)\n"
 	printf "  -Syu => Update the mirrorlist and packages\n"
@@ -210,8 +243,9 @@ function help() {
 	printf "  -Sww => Downloads the package(s)\n"
 	echo
 	printf "Query options\n"
-	printf "  -Q   => Will print the package and its version as it is locally"
-	printf "  -Qs  => Will print the package and its version that matches a search query"
+	printf "  -Q   => Print the package and its version as it is locally (or a list of all installed packages and their versions if no args given)"
+	printf "  -Qs  => Search installed packages with fgrep\n"
+	printf "  -Qsr => Search installed packages with egrep\n"
 	echo
 	printf "Remove packages using -R"
 	echo
@@ -251,6 +285,10 @@ case $1 in
 				search $@
 				exit 0
 				;;
+			-Ssr) shift
+				searchRegex $@
+				exit 0
+				;;
 			-S) if [ ! $# -gt 1 ]; then
 					echo "Needs at least one package to install"
 					exit 1
@@ -265,7 +303,10 @@ case $1 in
 		query $@
 		;;
 	-Qs) shift
-		querysearch $@
+		querySearch $@
+		;;
+	-Qsr) shift
+		querySearchRegex $@
 		;;
 	-h|--help) help
 		;;
