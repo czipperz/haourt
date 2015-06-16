@@ -10,7 +10,7 @@ that has a (function) `post_install()` with at least these two lines in the body
 `post_install() {`<br>
 `    sudo chown -R $_whoami $_HOME/<directory-installed-to>`<br>
 `    sudo chgrp -R $_whoami $_HOME/<directory-installed-to>`<br>
-`};`<br>
+`};`
 
 4. Build your project to make sure it works (`makepkg -sci`).
 Make sure that your package has its check sums (`makepkg -g >> PKGBUILD` to generate).
