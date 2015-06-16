@@ -235,7 +235,7 @@ function help() {
 	printf "Sync options\n"
 	printf "  -S   => Install one or more package(s)\n"
 	printf "  -Ss  => Search with fgrep\n"
-	printf "  -Ss  => Search with egrep (use quotes)\n"
+	printf "  -Ss  => Search with egrep (use quotes to prevent globbing)\n"
 	printf "  -Sy  => Update the mirrorlist\n"
 	printf "  -Su  => Update the packages (based on the local mirrorlist)\n"
 	printf "  -Syu => Update the mirrorlist and packages\n"
@@ -245,7 +245,7 @@ function help() {
 	printf "Query options\n"
 	printf "  -Q   => Print the package and its version as it is locally (or a list of all installed packages and their versions if no args given)"
 	printf "  -Qs  => Search installed packages with fgrep\n"
-	printf "  -Qsr => Search installed packages with egrep (use quotes)\n"
+	printf "  -Qsr => Search installed packages with egrep (use quotes to prevent globbing)\n"
 	echo
 	printf "Remove packages using -R"
 	echo

@@ -8,7 +8,7 @@ The goal of this project is to easily distribute PKGBUILDs for Arch Linux that i
 
 * `-S`   => Install one or more package(s)
 * `-Ss`  => Search with fgrep
-* `-Ssr` => Search with egrep
+* `-Ssr` => Search with egrep (use quotes to prevent globbing)
 * `-Sy`  => Update the mirrorlist
 * `-Su`  => Update the packages (based on the local mirrorlist)
 * `-Syu` => Update the mirrorlist and packages
@@ -19,7 +19,7 @@ The goal of this project is to easily distribute PKGBUILDs for Arch Linux that i
 
 * `-Q`   => Print the package and its version as it is locally (or a list of all installed packages and their versions if no args given)
 * `-Qs`  => Search installed packages with fgrep
-* `-Qsr` => Search installed packages with egrep
+* `-Qsr` => Search installed packages with egrep (use quotes to prevent globbing)
 
 **Remove packages using -R**
 
